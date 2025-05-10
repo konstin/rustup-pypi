@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
 
 jobs:
@@ -28,7 +28,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - run: uv build
-      - run: uv pip install --find-links dist/ --no-index rustup
+      - run: |
+          uv venv -p 3.9
+          uv pip install --find-links dist/ --no-index rustup
 
   lint:
     runs-on: ubuntu-latest
