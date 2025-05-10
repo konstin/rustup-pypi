@@ -61,6 +61,7 @@ rustup_targets = {
 # https://github.com/pypi/warehouse/blob/0093be2a41b135995c567915012596c6f0d66e6b/warehouse/forklift/legacy.py#L116-L132
 # glibc 2.17 is good enough
 pypi_targets = {
+    "aarch64-apple-darwin": "macosx_11_0_arm64",
     "aarch64-pc-windows-msvc": "win_arm64",
     "aarch64-unknown-linux-gnu": "manylinux_2_17_aarch64",
     "aarch64-unknown-linux-musl": "musllinux_2_17_aarch64",
@@ -73,6 +74,7 @@ pypi_targets = {
     "powerpc64le-unknown-linux-gnu": "manylinux_2_17_ppc64le",
     "powerpc64le-unknown-linux-musl": "musllinux_2_17_ppc64le",
     "s390x-unknown-linux-gnu": "manylinux_2_17_s390x",
+    "x86_64-apple-darwin": "macosx_10_12_x86_64",
     "x86_64-pc-windows-msvc": "win_amd64",
     "x86_64-unknown-linux-gnu": "manylinux_2_17_x86_64",
     "x86_64-unknown-linux-musl": "musllinux_2_17_x86_64",
