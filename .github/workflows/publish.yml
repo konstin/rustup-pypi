@@ -1,0 +1,31 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/rustup
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+      - run: uv run python -m rustup.build_rustup_wheels --binary-dir ../binaries --out-dir ../dist
+        working-directory: src
+      - run: uv build --sdist --out-dir dist
+      - name: Smoke Test
+        run: |
+          uv venv -p 3.9
+          uv pip install --find-links dist/ --no-index rustup
+          .venv/bin/rustup --help
+      - run: uv publish binaries/*

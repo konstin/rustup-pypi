@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-latest
+            arch: arm64
+          - os: macos-latest
+            arch: x64
+          - os: macos-14
+            arch: arm64
+          - os: windows-latest
+            arch: x64
+          - os: windows-latest
+            arch: arm64
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv build
+      - run: uv pip install --find-links dist/ --no-index rustup
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Ruff lint
+        uses: astral-sh/ruff-action@v2
+        with:
+          args: "check"
+      - name: Ruff format
+        uses: astral-sh/ruff-action@v2
+        with:
+          args: "format --check"
+      - name: Prettier
+        run: npx prettier --check --print-width 120 --prose-wrap always .github/** src/** *.md
+      - uses: astral-sh/setup-uv@v6
+      - name: Type Check
+        run: uv run pyright
