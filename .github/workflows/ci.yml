@@ -31,7 +31,8 @@ jobs:
       - run: uv build
       - name: Install
         run: |
-          uv venv --managed-python -p 3.9
+          uv venv --managed-python -p 3.9 --seed
+          .venv/bin/pip debug --verbose
           ls dist
           uv pip install --find-links dist/ --no-index --no-build rustup
 
