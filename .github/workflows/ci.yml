@@ -11,38 +11,31 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- os: ubuntu-latest
-          #  arch: x64
-          #- os: ubuntu-latest
-          #  arch: arm64
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-latest
+            arch: arm64
           - os: macos-13
             arch: x64
           - os: macos-latest
             arch: arm64
-          #- os: windows-latest
-          #  arch: x64
-          #- os: windows-latest
-          #  arch: arm64
+          - os: windows-latest
+            arch: x64
+          - os: windows-latest
+            arch: arm64
 
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - run: uv build
-      - name: Debug
-        run: |
-          ls dist
-          uname -a
       - name: Install Python 3.9
         run: |
           uv venv --managed-python -p 3.9 --seed
-          .venv/bin/pip debug --verbose
           uv pip install --find-links dist/ --no-index --no-build rustup
       - name: Install Python 3.13
         run: |
           uv venv --managed-python -p 3.13 --seed
-          .venv/bin/pip debug --verbose
-          ls dist
           uv pip install --find-links dist/ --no-index --no-build rustup
 
   lint:
