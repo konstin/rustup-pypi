@@ -32,6 +32,7 @@ jobs:
       - name: Install
         run: |
           uv venv -p 3.9
+          ls dist
           uv pip install --find-links dist/ --no-index --no-build rustup
 
   lint:
