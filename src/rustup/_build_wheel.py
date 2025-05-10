@@ -135,7 +135,7 @@ def write_metadata(write_file: Callable[[str, str], None], tag: str) -> tuple[st
     dist_info_dir = get_dist_info_dir()
     wheel = [
         ("Wheel-Version", "1.0"),
-        ("Generator", "rustup-pypi build_wheels.py"),
+        ("Generator", "rustup-pypi rustup.build_rustup_wheels"),
         ("Root-Is-Purelib", "false"),
         ("Tag", tag),
     ]
@@ -146,6 +146,8 @@ def write_metadata(write_file: Callable[[str, str], None], tag: str) -> tuple[st
         ("Name", name),
         ("Version", get_version()),
         ("Project-URL", "Source Code, https://github.com/konstin/rustup-pypi"),
+        # Captures both the Python code and rustup
+        ("License-Expression", "MIT OR Apache-2.0"),
     ]
     metadata = make_message(
         metadata1, Path(__file__).parent.parent.parent.joinpath("Readme.md").read_text()
