@@ -28,9 +28,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - run: uv build
-      - run: |
+      - name: Install
+        run: |
           uv venv -p 3.9
-          uv pip install --find-links dist/ --no-index rustup
+          uv pip install --find-links dist/ --no-index --no-build rustup
 
   lint:
     runs-on: ubuntu-latest
