@@ -113,16 +113,16 @@ wheels = [
 
 [[package]]
 name = "puccinialin"
-version = "0.1.2"
+version = "0.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "platformdirs" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7e/6a/e6d1de4f5ff2bcf5a92b7f77f3d152fa88cad25d14a1bb2ba16d95a7a530/puccinialin-0.1.2.tar.gz", hash = "sha256:2cd618c63f1d0b71365176a56e0f202fc0f970298dd6ed376a626c4a888804e5", size = 14414, upload-time = "2025-05-10T21:22:59.686Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3a/54/d8dce72bb4bd7371f38bd2e9c97f9e2740ac965d46458c02ea5b785129b1/puccinialin-0.1.3.tar.gz", hash = "sha256:6e27d6372b5dfa832dc624f1430a2dce3a11b01f586e4b092f642ac42e9294e0", size = 9789, upload-time = "2025-05-10T22:21:37.532Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/dc/0f/c09ab796683c143964df8ade28d4f4ba1f5d96a653688e877b13ec714efd/puccinialin-0.1.2-py3-none-any.whl", hash = "sha256:63c582877eeb175138cb687530d2fd5511f97add193ce26515f417f38e7612fa", size = 7093, upload-time = "2025-05-10T21:22:58.828Z" },
+    { url = "https://files.pythonhosted.org/packages/6f/02/fb99ca2d834c19110af36de74ec2ebd82040d000a254980c66c0f03252f6/puccinialin-0.1.3-py3-none-any.whl", hash = "sha256:8171916df351de29e48478476de2edd6015ea3479d63bca038716b860d24cc6b", size = 7184, upload-time = "2025-05-10T22:21:36.666Z" },
 ]
 
 [[package]]
@@ -165,7 +165,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 build = [
-    { name = "puccinialin", specifier = ">=0.1.2,<0.2.0" },
+    { name = "puccinialin", specifier = ">=0.1.3,<0.2.0" },
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2.2.1,<3.0.0" },
     { name = "uv-build", specifier = ">=0.7.0,<0.8.0" },
 ]
