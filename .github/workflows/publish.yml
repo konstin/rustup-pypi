@@ -28,4 +28,4 @@ jobs:
           uv venv -p 3.9
           uv pip install --find-links dist/ --no-index rustup
           .venv/bin/rustup --help
-      - run: uv publish binaries/*
+      - run: uv publish dist/*
