@@ -125,6 +125,8 @@ async def download_binary(client: AsyncClient, target: str, output_dir: Path) ->
             async for chunk in response.aiter_bytes():
                 f.write(chunk)
 
+    output_path.chmod(0o755)
+
     return target
 
 
