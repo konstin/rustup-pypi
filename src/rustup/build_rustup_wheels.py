@@ -11,9 +11,10 @@ async def main():
     parser = ArgumentParser()
     parser.add_argument("--binary-dir", default="binaries", type=Path)
     parser.add_argument("--out-dir", default="dist", type=Path)
+    parser.add_argument("--target")
     args = parser.parse_args()
-    await download_all_binaries(args.binary_dir)
-    build_wheels(args.binary_dir, args.out_dir)
+    await download_all_binaries(args.target, args.binary_dir)
+    build_wheels(args.target, args.binary_dir, args.out_dir)
 
 
 if __name__ == "__main__":

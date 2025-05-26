@@ -5,7 +5,7 @@ from email.message import EmailMessage
 from functools import lru_cache
 from pathlib import Path
 from typing import Callable, Iterable
-from zipfile import ZIP_DEFLATED, ZipFile
+from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 from httpx import AsyncClient
 
@@ -169,35 +169,70 @@ def write_wheel(
     exe_suffix = exe_suffix_for_target(target_triple)
     binary_path = binary_dir.joinpath(f"rustup-init-{target_triple}{exe_suffix}")
 
+    symlinks = [
+        "cargo",
+        "cargo-clippy",
+        "cargo-fmt",
+        "cargo-miri",
+        "clippy-driver",
+        "rls",
+        "rust-analyzer",
+        "rust-gdb",
+        "rust-gdbgui",
+        "rust-lldb",
+        "rustc",
+        "rustdoc",
+        "rustfmt",
+    ]
+
     with ZipFile(dist_dir.joinpath(wheel_basename), "w", ZIP_DEFLATED) as fp:  # noqa: F821
         scripts_dir = f"rustup-{get_version()}.data/scripts"
         # Not rustup-init, but rustup, we want the installed binary
         fp.write(binary_path, f"{scripts_dir}/rustup{exe_suffix}")
-
-        dist_info_dir = get_dist_info_dir()
-        metadata, wheel = write_metadata(fp.writestr, tag)
         record = [
             (
                 f"{scripts_dir}/rustup{exe_suffix}",
                 f"sha256={sha256}",
                 binary_dir.stat().st_size,
-            ),
-            (
-                f"{dist_info_dir}/WHEEL",
-                f"sha256={hashlib.sha256(wheel.encode()).hexdigest()}",
-                len(wheel.encode()),
-            ),
-            (
-                f"{dist_info_dir}/METADATA",
-                f"sha256={hashlib.sha256(metadata.encode()).hexdigest()}",
-                len(metadata.encode()),
-            ),
-            (
-                f"{dist_info_dir}/RECORD",
-                "",
-                "",
-            ),
+            )
         ]
+
+        for symlink in symlinks:
+            zip_info = ZipInfo(f"{scripts_dir}/{symlink}{exe_suffix}")
+            # :/
+            zip_info.external_attr = (0o777 << 16) | 0xA000
+            zip_info.create_system = 3
+            target = "rustup"
+            fp.writestr(zip_info, target)
+            record.append(
+                (
+                    f"{scripts_dir}/{symlink}{exe_suffix}",
+                    f"sha256={hashlib.sha256(target.encode()).hexdigest()}",
+                    len(target.encode()),
+                )
+            )
+
+        dist_info_dir = get_dist_info_dir()
+        metadata, wheel = write_metadata(fp.writestr, tag)
+        record.extend(
+            [
+                (
+                    f"{dist_info_dir}/WHEEL",
+                    f"sha256={hashlib.sha256(wheel.encode()).hexdigest()}",
+                    len(wheel.encode()),
+                ),
+                (
+                    f"{dist_info_dir}/METADATA",
+                    f"sha256={hashlib.sha256(metadata.encode()).hexdigest()}",
+                    len(metadata.encode()),
+                ),
+                (
+                    f"{dist_info_dir}/RECORD",
+                    "",
+                    "",
+                ),
+            ]
+        )
         record = "\n".join(
             f"{file_name},{file_hash},{size}" for file_name, file_hash, size in record
         )

@@ -9,12 +9,14 @@ from tqdm import tqdm
 from ._build_wheel import download_binary, pypi_targets, rustup_targets, write_wheel
 
 
-async def download_all_binaries(binary_dir: Path):
+async def download_all_binaries(target_filter: str | None, binary_dir: Path):
     binary_dir.mkdir(exist_ok=True)
     binary_dir.joinpath(".gitignore").write_text("*\n")
     async with AsyncClient() as client:
         tasks = []
         for target_triple in pypi_targets:
+            if target_filter and target_filter != pypi_targets[target_triple]:
+                continue
             task = download_binary(client, target_triple, binary_dir)
             tasks.append(task)
 
@@ -26,10 +28,12 @@ async def download_all_binaries(binary_dir: Path):
                 pbar.set_postfix({"Last": target}, refresh=True)
 
 
-def build_wheels(output_dir: Path, dist_dir: Path):
+def build_wheels(target_filter: str | None, output_dir: Path, dist_dir: Path):
     dist_dir.mkdir(exist_ok=True)
     dist_dir.joinpath(".gitignore").write_text("*\n")
     for target_triple, pypi_target in pypi_targets.items():
+        if target_filter and target_filter != pypi_target:
+            continue
         write_wheel(
             output_dir,
             rustup_targets[target_triple],
