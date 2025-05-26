@@ -1,0 +1,12 @@
+FROM ghcr.io/astral-sh/uv:debian
+
+RUN uv tool install rustup
+ENV PATH=/root/.local/bin:$PATH
+
+ENV CARGO_HOME=/root/.cargo
+ENV RUSTUP_HOME=/root/.rustup
+
+RUN rustup show -v
+RUN rustup toolchain install stable --no-self-update
+RUN rustup show -v && echo
+RUN ls -lah /root

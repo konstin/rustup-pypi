@@ -1,0 +1,7 @@
+FROM python
+
+RUN pip install rustup -v
+RUN chmod +x /usr/local/bin/rustup # TODO
+RUN rustup show -v
+RUN rustup toolchain install stable --no-self-update
+RUN rustup show -v && echo

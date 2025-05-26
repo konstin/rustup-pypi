@@ -15,7 +15,7 @@ dependencies = [
 license = "MIT OR Apache-2.0"
 
 [project.scripts]
-build-rustup-wheels = "rustup.build_rustup_wheel"
+build-rustup-wheels = "rustup.build_rustup_wheels"
 
 [dependency-groups]
 build = [
