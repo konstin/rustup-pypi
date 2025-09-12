@@ -64,7 +64,8 @@ jobs:
           .venv/bin/rustup default stable
           .venv/bin/cargo new foo
           cd foo
-          .venv/bin/cargo run
+          ../.venv/bin/cargo run
+          cd ..
       - name: Show versions
         run: |
           .venv/bin/rustup -vV
