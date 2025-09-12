@@ -59,10 +59,6 @@ jobs:
         run: |
           uv venv
           uv pip install --find-links dist/ --no-index rustup
-      - name: Inspect
-        run: |
-          which rustup
-          which cargo
       - name: Build a test package
         run: |
           .venv/bin/rustup default stable
