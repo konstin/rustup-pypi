@@ -51,26 +51,26 @@ jobs:
     runs-on: ${{ matrix.os }}
     container: python:3.13
     steps:
-    - uses: actions/checkout@v5
-    - uses: astral-sh/setup-uv@v6
-    - name: Build
-      run: uv build
-    - name: Install
-      run: uv pip install --find-links dist/ --no-index rustup
-    - name: Inspect
-      run: |
-        which rustup
-        which cargo
-    - name: Build a test package
-      run: |
-        .venv/bin/rustup default stable
-        .venv/bin/cargo new foo
-        cd foo
-        .venv/bin/cargo run
-    - name: Show versions
-      run: |
-        .venv/bin/rustup -vV
-        .venv/bin/cargo -vV
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+      - name: Build
+        run: uv build
+      - name: Install
+        run: uv pip install --find-links dist/ --no-index rustup
+      - name: Inspect
+        run: |
+          which rustup
+          which cargo
+      - name: Build a test package
+        run: |
+          .venv/bin/rustup default stable
+          .venv/bin/cargo new foo
+          cd foo
+          .venv/bin/cargo run
+      - name: Show versions
+        run: |
+          .venv/bin/rustup -vV
+          .venv/bin/cargo -vV
 
   lint:
     runs-on: ubuntu-latest
