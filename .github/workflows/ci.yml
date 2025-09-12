@@ -56,7 +56,9 @@ jobs:
       - name: Build
         run: uv build
       - name: Install
-        run: uv pip install --find-links dist/ --no-index rustup
+        run: |
+          uv venv
+          uv pip install --find-links dist/ --no-index rustup
       - name: Inspect
         run: |
           which rustup
