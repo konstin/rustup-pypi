@@ -100,7 +100,7 @@ proxy_names = [
 
 
 @lru_cache
-def get_versions() -> (str, str):
+def get_versions() -> tuple[str, str]:
     """The version of rustup is the version of this package."""
     pyproject_toml = tomllib.loads(
         Path(__file__).parent.parent.parent.joinpath("pyproject.toml").read_text()
