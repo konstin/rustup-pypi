@@ -20,7 +20,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - uses: astral-sh/setup-uv@v6
-      - run: uv run python -m rustup.build_rustup_wheels --binary-dir ../binaries --out-dir ../dist
+      - run: uv run python -m rustup.build_rustup_wheels
         working-directory: src
       - run: uv build --sdist --out-dir dist
       - name: Smoke Test
@@ -28,4 +28,5 @@ jobs:
           uv venv -p 3.9
           uv pip install --find-links dist/ --no-index rustup
           .venv/bin/rustup --help
+          .venv/bin/cargo --help
       - run: uv publish dist/*
