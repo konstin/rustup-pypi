@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import hashlib
+import stat
 from email.message import EmailMessage
 from functools import lru_cache
 from pathlib import Path
 from typing import Callable, Iterable
-from zipfile import ZIP_DEFLATED, ZipFile
+from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 from httpx import AsyncClient
 
@@ -80,18 +81,45 @@ pypi_targets = {
     "x86_64-unknown-linux-musl": "musllinux_2_17_x86_64",
 }
 
+# https://github.com/rust-lang/rustup/blob/8b3aedcc599e9b6c6f3f1ece6a9a45dd4abc5ca4/src/lib.rs#L20-L37
+proxy_names = [
+    "cargo",
+    "cargo-clippy",
+    "cargo-fmt",
+    "cargo-miri",
+    "clippy-driver",
+    "rls",
+    "rust-analyzer",
+    "rust-gdb",
+    "rust-gdbgui",
+    "rust-lldb",
+    "rustc",
+    "rustdoc",
+    "rustfmt",
+]
+
 
 @lru_cache
-def get_version() -> str:
+def get_versions() -> (str, str):
     """The version of rustup is the version of this package."""
     pyproject_toml = tomllib.loads(
         Path(__file__).parent.parent.parent.joinpath("pyproject.toml").read_text()
     )
     version = pyproject_toml["project"]["version"]
+    # strip post-release using the fourth digit
+    rustup_version = ".".join(version.split(".")[:3])
     if pyproject_toml["project"]["name"] != "rustup":
         raise ValueError("`project.name` in pyproject.toml must be rustup")
 
-    return version
+    return version, rustup_version
+
+
+def get_project_version() -> str:
+    return get_versions()[0]
+
+
+def get_rustup_version() -> str:
+    return get_versions()[1]
 
 
 def make_message(headers: Iterable[tuple[str, str | list[str]]], payload=None):
@@ -116,7 +144,7 @@ def exe_suffix_for_target(target: str) -> str:
 
 async def download_binary(client: AsyncClient, target: str, output_dir: Path) -> str:
     exe_suffix = exe_suffix_for_target(target)
-    url = f"https://static.rust-lang.org/rustup/archive/{get_version()}/{target}/rustup-init{exe_suffix}"
+    url = f"https://static.rust-lang.org/rustup/archive/{get_rustup_version()}/{target}/rustup-init{exe_suffix}"
     output_path = output_dir.joinpath(f"rustup-init-{target}{exe_suffix}")
 
     async with client.stream("GET", url) as response:
@@ -131,7 +159,7 @@ async def download_binary(client: AsyncClient, target: str, output_dir: Path) ->
 
 
 def get_dist_info_dir() -> str:
-    return f"rustup-{get_version()}.dist-info"
+    return f"rustup-{get_project_version()}.dist-info"
 
 
 def write_metadata(write_file: Callable[[str, str], None], tag: str) -> tuple[str, str]:
@@ -148,7 +176,7 @@ def write_metadata(write_file: Callable[[str, str], None], tag: str) -> tuple[st
     metadata1 = [
         ("Metadata-Version", "2.4"),
         ("Name", name),
-        ("Version", get_version()),
+        ("Version", get_project_version()),
         ("Project-URL", "Source Code, https://github.com/konstin/rustup-pypi"),
         # Captures both the Python code and rustup
         ("License-Expression", "MIT OR Apache-2.0"),
@@ -164,15 +192,23 @@ def write_wheel(
     binary_dir: Path, sha256: str, dist_dir: Path, target_triple: str, pypi_target: str
 ) -> str:
     tag = f"py3-none-{pypi_target}"
-    wheel_basename = f"rustup-{get_version()}-{tag}.whl"
+    wheel_basename = f"rustup-{get_project_version()}-{tag}.whl"
 
     exe_suffix = exe_suffix_for_target(target_triple)
     binary_path = binary_dir.joinpath(f"rustup-init-{target_triple}{exe_suffix}")
 
     with ZipFile(dist_dir.joinpath(wheel_basename), "w", ZIP_DEFLATED) as fp:  # noqa: F821
-        scripts_dir = f"rustup-{get_version()}.data/scripts"
+        scripts_dir = f"rustup-{get_project_version()}.data/scripts"
         # Not rustup-init, but rustup, we want the installed binary
         fp.write(binary_path, f"{scripts_dir}/rustup{exe_suffix}")
+
+        shim = Path(__file__).parent.joinpath("_shim.py")
+        for proxy_name in proxy_names:
+            info = ZipInfo(f"{scripts_dir}/{proxy_name}{exe_suffix}")
+            # Set executable bit (rwxr-xr-x = 0o755)
+            # upper 16 bits store Unix permissions, pip requires `S_IFREG`
+            info.external_attr = (stat.S_IFREG | 0o755) << 16
+            fp.writestr(info, shim.read_text())
 
         dist_info_dir = get_dist_info_dir()
         metadata, wheel = write_metadata(fp.writestr, tag)
@@ -198,6 +234,14 @@ def write_wheel(
                 "",
             ),
         ]
+        for proxy_name in proxy_names:
+            record.append(
+                (
+                    f"{scripts_dir}/{proxy_name}{exe_suffix}",
+                    f"sha256={hashlib.sha256(shim.read_text().encode()).hexdigest()}",
+                    shim.stat().st_size,
+                )
+            )
         record = "\n".join(
             f"{file_name},{file_hash},{size}" for file_name, file_hash, size in record
         )

@@ -1,6 +1,6 @@
 [project]
 name = "rustup"
-version = "1.28.2"
+version = "1.28.2.1"
 description = "rustup distribution for PyPI"
 readme = "Readme.md"
 authors = [
@@ -13,9 +13,6 @@ dependencies = [
 ]
 # Same license as rustup
 license = "MIT OR Apache-2.0"
-
-[project.scripts]
-build-rustup-wheels = "rustup.build_rustup_wheel"
 
 [dependency-groups]
 build = [
