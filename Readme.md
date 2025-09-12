@@ -1,6 +1,25 @@
 # rustup-pypi
 
-Unofficial [rustup](https://rustup.rs/) distribution for PyPI.
+Unofficial [rustup](https://rustup.rs/) distribution for PyPI. Install rustup, and by extension Cargo and rustc, through
+Python.
+
+Usage:
+
+```shell
+pip install rustup
+```
+
+or
+
+```shell
+uv pip install rustup
+```
+
+Install an initial toolchain, can be skipped if there's a `rust-toolchain.toml`:
+
+```shell
+rustup default stable
+```
 
 If you are a rust(up) team member and interested in this package, please DM me.
 
