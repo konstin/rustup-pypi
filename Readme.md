@@ -1,7 +1,7 @@
 # rustup-pypi
 
 Unofficial [rustup](https://rustup.rs/) distribution for PyPI. Install rustup, and by extension Cargo and rustc, through
-Python. Useful for example when writing Python modules in Rust or for platform-independent installation inst
+Python. Useful when writing Python modules in Rust or for a platform-independent Rust install command.
 
 Usage:
 
