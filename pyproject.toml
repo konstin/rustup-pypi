@@ -1,6 +1,6 @@
 [project]
 name = "rustup"
-version = "1.28.2.1"
+version = "1.28.2.2"
 description = "rustup distribution for PyPI"
 readme = "Readme.md"
 authors = [
@@ -13,6 +13,22 @@ dependencies = [
 ]
 # Same license as rustup
 license = "MIT OR Apache-2.0"
+
+# https://github.com/rust-lang/rustup/blob/8b3aedcc599e9b6c6f3f1ece6a9a45dd4abc5ca4/src/lib.rs#L20-L37
+[project.scripts]
+cargo = "rustup.shim:cargo"
+cargo-clippy = "rustup.shim:cargo_clippy"
+cargo-fmt = "rustup.shim:cargo_fmt"
+cargo-miri = "rustup.shim:cargo_miri"
+clippy-driver = "rustup.shim:clippy_driver"
+rls = "rustup.shim:rls"
+rust-analyzer = "rustup.shim:rust_analyzer"
+rust-gdb = "rustup.shim:rust_gdb"
+rust-gdbgui = "rustup.shim:rust_gdbgui"
+rust-lldb = "rustup.shim:rust_lldb"
+rustc = "rustup.shim:rustc"
+rustdoc = "rustup.shim:rustdoc"
+rustfmt = "rustup.shim:rustfmt"
 
 [dependency-groups]
 build = [

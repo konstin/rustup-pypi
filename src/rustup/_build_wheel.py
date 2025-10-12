@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 import hashlib
-import stat
 from email.message import EmailMessage
 from functools import lru_cache
 from pathlib import Path
 from typing import Callable, Iterable
-from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
+from zipfile import ZIP_DEFLATED, ZipFile
 
 from httpx import AsyncClient
-
 
 try:
     import tomllib  # pyright: ignore
@@ -81,23 +79,6 @@ pypi_targets = {
     "x86_64-unknown-linux-musl": "musllinux_2_17_x86_64",
 }
 
-# https://github.com/rust-lang/rustup/blob/8b3aedcc599e9b6c6f3f1ece6a9a45dd4abc5ca4/src/lib.rs#L20-L37
-proxy_names = [
-    "cargo",
-    "cargo-clippy",
-    "cargo-fmt",
-    "cargo-miri",
-    "clippy-driver",
-    "rls",
-    "rust-analyzer",
-    "rust-gdb",
-    "rust-gdbgui",
-    "rust-lldb",
-    "rustc",
-    "rustdoc",
-    "rustfmt",
-]
-
 
 @lru_cache
 def get_versions() -> tuple[str, str]:
@@ -162,7 +143,9 @@ def get_dist_info_dir() -> str:
     return f"rustup-{get_project_version()}.dist-info"
 
 
-def write_metadata(write_file: Callable[[str, str], None], tag: str) -> tuple[str, str]:
+def write_metadata(
+    write_file: Callable[[str, str], None], tag: str
+) -> tuple[str, str, str]:
     """Split out for prepare_metadata_for_build_wheel"""
     dist_info_dir = get_dist_info_dir()
     wheel = [
@@ -173,7 +156,8 @@ def write_metadata(write_file: Callable[[str, str], None], tag: str) -> tuple[st
     ]
     wheel = make_message(wheel).as_string()
     write_file(f"{dist_info_dir}/WHEEL", wheel)
-    metadata1 = [
+
+    metadata = [
         ("Metadata-Version", "2.4"),
         ("Name", name),
         ("Version", get_project_version()),
@@ -182,10 +166,18 @@ def write_metadata(write_file: Callable[[str, str], None], tag: str) -> tuple[st
         ("License-Expression", "MIT OR Apache-2.0"),
     ]
     metadata = make_message(
-        metadata1, Path(__file__).parent.parent.parent.joinpath("Readme.md").read_text()
+        metadata, Path(__file__).parent.parent.parent.joinpath("Readme.md").read_text()
     ).as_string()
     write_file(f"{dist_info_dir}/METADATA", metadata)
-    return metadata, wheel
+
+    pyproject_toml = Path(__file__).parent.parent.parent.joinpath("pyproject.toml")
+    proxy_names = tomllib.loads(pyproject_toml.read_text())["project"]["scripts"]
+    entry_points = "[console_scripts]\n"
+    for proxy_name, proxy_symbol in proxy_names.items():
+        entry_points += f"{proxy_name} = {proxy_symbol}\n"
+    write_file(f"{dist_info_dir}/entry_points.txt", entry_points)
+
+    return metadata, wheel, entry_points
 
 
 def write_wheel(
@@ -197,26 +189,35 @@ def write_wheel(
     exe_suffix = exe_suffix_for_target(target_triple)
     binary_path = binary_dir.joinpath(f"rustup-init-{target_triple}{exe_suffix}")
 
-    with ZipFile(dist_dir.joinpath(wheel_basename), "w", ZIP_DEFLATED) as fp:  # noqa: F821
+    with ZipFile(dist_dir.joinpath(wheel_basename), "w", ZIP_DEFLATED) as fp:
         scripts_dir = f"rustup-{get_project_version()}.data/scripts"
         # Not rustup-init, but rustup, we want the installed binary
         fp.write(binary_path, f"{scripts_dir}/rustup{exe_suffix}")
 
-        shim = Path(__file__).parent.joinpath("_shim.py")
-        for proxy_name in proxy_names:
-            info = ZipInfo(f"{scripts_dir}/{proxy_name}{exe_suffix}")
-            # Set executable bit (rwxr-xr-x = 0o755)
-            # upper 16 bits store Unix permissions, pip requires `S_IFREG`
-            info.external_attr = (stat.S_IFREG | 0o755) << 16
-            fp.writestr(info, shim.read_text())
+        record = []
+        shim_py = Path(__file__).parent.joinpath("shim.py")
+        shim = shim_py.read_text()
+        fp.writestr("rustup/shim.py", shim)
+        record.append(
+            (
+                "rustup/shim.py",
+                f"sha256={hashlib.sha256(shim.encode()).hexdigest()}",
+                shim_py.stat().st_size,
+            )
+        )
 
         dist_info_dir = get_dist_info_dir()
-        metadata, wheel = write_metadata(fp.writestr, tag)
-        record = [
+        metadata, wheel, entry_points = write_metadata(fp.writestr, tag)
+        record += [
             (
                 f"{scripts_dir}/rustup{exe_suffix}",
                 f"sha256={sha256}",
                 binary_dir.stat().st_size,
+            ),
+            (
+                f"{dist_info_dir}/entry_points.txt",
+                f"sha256={hashlib.sha256(entry_points.encode()).hexdigest()}",
+                len(entry_points.encode()),
             ),
             (
                 f"{dist_info_dir}/WHEEL",
@@ -234,14 +235,6 @@ def write_wheel(
                 "",
             ),
         ]
-        for proxy_name in proxy_names:
-            record.append(
-                (
-                    f"{scripts_dir}/{proxy_name}{exe_suffix}",
-                    f"sha256={hashlib.sha256(shim.read_text().encode()).hexdigest()}",
-                    shim.stat().st_size,
-                )
-            )
         record = "\n".join(
             f"{file_name},{file_hash},{size}" for file_name, file_hash, size in record
         )
