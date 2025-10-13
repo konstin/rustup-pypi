@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
-from os.path import dirname, abspath, join, exists
+from os.path import dirname, abspath, join, exists, splitext
 
 
 def _shim(proxy: str) -> None:
@@ -12,7 +12,13 @@ def _shim(proxy: str) -> None:
         os.environ["PATH"] = os.pathsep.join(
             [parent, *os.environ["PATH"].split(os.pathsep)]
         )
-    rustup = join(parent, "rustup")
+
+    # Read the exe suffix from the real argv, otherwise use a fallback
+    if len(sys.orig_argv) > 1:
+        exe_suffix = splitext(sys.orig_argv[1])[1]
+    else:
+        exe_suffix = ".exe" if sys.platform == "win32" else ""
+    rustup = join(parent, f"rustup{exe_suffix}")
     if not exists(rustup):
         raise RuntimeError(f"rustup binary does not exist: {rustup}")
     # Keep pretending we're the shim binary
