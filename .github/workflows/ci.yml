@@ -39,20 +39,12 @@ jobs:
           uv pip install --find-links dist/ --no-index --no-build rustup
       - name: Run cargo with uv
         run: uv run --no-sync cargo -vV
-      - name: Activate venv (Unix)
+      - name: Smoke Test Unix
         if: runner.os != 'Windows'
-        run: source .venv/bin/activate
-      - name: Activate venv (Windows)
+        run: source .venv/bin/cargo -vV
+      - name: Smoke Test Windows
         if: runner.os == 'Windows'
-        run: .venv\Scripts\activate
-      - name: Find cargo (Unix)
-        if: runner.os != 'Windows'
-        run: which cargo
-      - name: Find cargo (Windows)
-        if: runner.os == 'Windows'
-        run: where.exe cargo
-      - name: Cargo version
-        run: cargo -vV
+        run: .venv\Scripts\cargo -vV
 
   integration-test:
     strategy:
