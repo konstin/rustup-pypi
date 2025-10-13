@@ -37,6 +37,22 @@ jobs:
         run: |
           uv venv --managed-python -p 3.13 --seed
           uv pip install --find-links dist/ --no-index --no-build rustup
+      - name: Run cargo with uv
+        run: uv run --no-sync cargo -vV
+      - name: Activate venv (Unix)
+        if: runner.os != 'Windows'
+        run: source .venv/bin/activate
+      - name: Activate venv (Windows)
+        if: runner.os == 'Windows'
+        run: .venv\Scripts\activate
+      - name: Find cargo (Unix)
+        if: runner.os != 'Windows'
+        run: which cargo
+      - name: Find cargo (Windows)
+        if: runner.os == 'Windows'
+        run: where.exe cargo
+      - name: Cargo version
+        run: cargo -vV
 
   integration-test:
     strategy:
