@@ -41,7 +41,7 @@ jobs:
         run: uv run --no-sync cargo -vV
       - name: Smoke Test Unix
         if: runner.os != 'Windows'
-        run: source .venv/bin/cargo -vV
+        run: .venv/bin/cargo -vV
       - name: Smoke Test Windows
         if: runner.os == 'Windows'
         run: .venv\Scripts\cargo -vV
