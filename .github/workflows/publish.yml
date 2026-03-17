@@ -25,7 +25,7 @@ jobs:
       - run: uv build --sdist --out-dir dist
       - name: Smoke Test
         run: |
-          uv venv -p 3.10
+          uv venv -p 3.10 --clear
           uv pip install --find-links dist/ --no-index rustup
           .venv/bin/rustup --help
           .venv/bin/cargo --help
