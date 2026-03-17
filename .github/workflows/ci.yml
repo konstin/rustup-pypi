@@ -55,7 +55,7 @@ jobs:
             arch: arm64
 
     runs-on: ${{ matrix.os }}
-    container: python:3.13
+    container: python:3.14
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v6
@@ -64,6 +64,30 @@ jobs:
       - name: Install
         run: |
           uv venv
+          uv pip install --find-links dist/ --no-index rustup
+      - name: Build a test package
+        run: |
+          .venv/bin/rustup default stable
+          .venv/bin/cargo new foo
+          cd foo
+          ../.venv/bin/cargo run
+          cd ..
+      - name: Show versions
+        run: |
+          .venv/bin/rustup -vV
+          .venv/bin/cargo -vV
+
+  integration-test-musllinux:
+    runs-on: ubuntu-latest
+    container: quay.io/pypa/musllinux_1_2_x86_64
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+      - name: Build
+        run: uv build
+      - name: Install
+        run: |
+          uv venv -p 3.14
           uv pip install --find-links dist/ --no-index rustup
       - name: Build a test package
         run: |
