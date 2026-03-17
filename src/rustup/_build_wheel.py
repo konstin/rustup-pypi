@@ -63,7 +63,7 @@ pypi_targets = {
     "aarch64-apple-darwin": "macosx_11_0_arm64",
     "aarch64-pc-windows-msvc": "win_arm64",
     "aarch64-unknown-linux-gnu": "manylinux_2_17_aarch64",
-    "aarch64-unknown-linux-musl": "musllinux_2_17_aarch64",
+    "aarch64-unknown-linux-musl": "musllinux_1_1_aarch64",
     # TODO: abi or abihf?
     "arm-unknown-linux-gnueabi": "linux_armv6l",
     "armv7-unknown-linux-gnueabihf": "manylinux_2_17_armv7l",
@@ -71,12 +71,12 @@ pypi_targets = {
     "i686-unknown-linux-gnu": "manylinux_2_17_i686",
     "powerpc64-unknown-linux-gnu": "manylinux_2_17_ppc64",
     "powerpc64le-unknown-linux-gnu": "manylinux_2_17_ppc64le",
-    "powerpc64le-unknown-linux-musl": "musllinux_2_17_ppc64le",
+    "powerpc64le-unknown-linux-musl": "musllinux_1_1_ppc64le",
     "s390x-unknown-linux-gnu": "manylinux_2_17_s390x",
     "x86_64-apple-darwin": "macosx_10_12_x86_64",
     "x86_64-pc-windows-msvc": "win_amd64",
     "x86_64-unknown-linux-gnu": "manylinux_2_17_x86_64",
-    "x86_64-unknown-linux-musl": "musllinux_2_17_x86_64",
+    "x86_64-unknown-linux-musl": "musllinux_1_1_x86_64",
 }
 
 
