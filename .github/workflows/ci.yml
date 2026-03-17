@@ -15,8 +15,6 @@ jobs:
             arch: x64
           - os: ubuntu-latest
             arch: arm64
-          - os: macos-13
-            arch: x64
           - os: macos-latest
             arch: arm64
           - os: windows-latest
@@ -97,4 +95,4 @@ jobs:
         run: npx prettier --check --print-width 120 --prose-wrap always .github/** src/** *.md
       - uses: astral-sh/setup-uv@v6
       - name: Type Check
-        run: uv run pyright
+        run: uv run ty check
