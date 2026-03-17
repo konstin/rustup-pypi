@@ -33,7 +33,7 @@ jobs:
           uv pip install --find-links dist/ --no-index --no-build rustup
       - name: Install Python 3.14
         run: |
-          uv venv --managed-python -p 3.14 --seed
+          uv venv --managed-python -p 3.14 --seed --clear
           uv pip install --find-links dist/ --no-index --no-build rustup
       - name: Run cargo with uv
         run: uv run --no-sync cargo -vV
@@ -44,7 +44,7 @@ jobs:
         if: runner.os == 'Windows'
         run: .venv\Scripts\cargo -vV
 
-  integration-test:
+  integration-test-ubuntu:
     strategy:
       fail-fast: false
       matrix:
