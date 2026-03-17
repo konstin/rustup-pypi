@@ -10,10 +10,10 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from httpx import AsyncClient
 
 try:
-    import tomllib  # pyright: ignore
+    import tomllib  # ty: ignore
 except ModuleNotFoundError:
     # noinspection PyUnresolvedReferences
-    import tomli as tomllib  # pyright: ignore
+    import tomli as tomllib  # ty: ignore
 
 
 name = "rustup"
