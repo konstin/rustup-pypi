@@ -1,6 +1,6 @@
 [project]
 name = "rustup"
-version = "1.28.2.2"
+version = "1.29.0"
 description = "rustup distribution for PyPI"
 readme = "Readme.md"
 authors = [
