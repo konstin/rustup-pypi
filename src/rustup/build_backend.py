@@ -5,10 +5,9 @@ import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from uv_build import build_sdist, get_requires_for_build_sdist
 from httpx import AsyncClient
-
 from puccinialin import get_triple
+from uv_build import build_sdist, get_requires_for_build_sdist
 
 from ._build_wheel import (
     download_binary,
@@ -21,8 +20,8 @@ from ._build_wheel import (
 
 __all__ = [
     "build_sdist",
-    "get_requires_for_build_sdist",
     "build_wheel",
+    "get_requires_for_build_sdist",
     "get_requires_for_build_wheel",
 ]
 

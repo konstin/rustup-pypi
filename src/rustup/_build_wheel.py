@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable, Iterable
 from email.message import EmailMessage
 from functools import lru_cache
 from pathlib import Path
-from typing import Callable, Iterable
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from httpx import AsyncClient
@@ -194,7 +194,7 @@ def write_wheel(
         # Not rustup-init, but rustup, we want the installed binary
         fp.write(binary_path, f"{scripts_dir}/rustup{exe_suffix}")
 
-        record = []
+        record: list[tuple[str, str, int | str]] = []
         shim_py = Path(__file__).parent.joinpath("shim.py")
         shim = shim_py.read_text()
         fp.writestr("rustup/shim.py", shim)
@@ -235,9 +235,9 @@ def write_wheel(
                 "",
             ),
         ]
-        record = "\n".join(
+        record_text = "\n".join(
             f"{file_name},{file_hash},{size}" for file_name, file_hash, size in record
         )
-        fp.writestr(f"{dist_info_dir}/RECORD", record)
+        fp.writestr(f"{dist_info_dir}/RECORD", record_text)
 
     return wheel_basename
