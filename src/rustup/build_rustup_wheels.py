@@ -3,11 +3,10 @@ from __future__ import annotations
 import asyncio
 import subprocess
 from argparse import ArgumentParser
+from functools import lru_cache
 from pathlib import Path
 
-from ._build_wheels import download_all_binaries, build_wheels
-
-from functools import lru_cache
+from ._build_wheels import build_wheels, download_all_binaries
 
 
 @lru_cache

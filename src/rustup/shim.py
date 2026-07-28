@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
-from os.path import dirname, abspath, join, exists, splitext
+from os.path import abspath, dirname, exists, join, splitext
 
 
 def _shim(proxy: str) -> None:
