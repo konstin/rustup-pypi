@@ -161,6 +161,7 @@ def write_metadata(
         ("Metadata-Version", "2.4"),
         ("Name", name),
         ("Version", get_project_version()),
+        ("Description-Content-Type", "text/markdown"),
         ("Project-URL", "Source Code, https://github.com/konstin/rustup-pypi"),
         # Captures both the Python code and rustup
         ("License-Expression", "MIT OR Apache-2.0"),
